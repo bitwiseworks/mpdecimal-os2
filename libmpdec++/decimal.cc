@@ -172,7 +172,7 @@ Context context_template {
   1                                                              /* allcr */
 };
 
-#if defined(__OpenBSD__) || defined(__sun) || defined(_MSC_VER) && defined(_DLL)
+#if defined(__OS2__) || defined(__OpenBSD__) || defined(__sun) || defined(_MSC_VER) && defined(_DLL)
 Context& getcontext() {
   static thread_local Context _context{context_template};
   return _context;

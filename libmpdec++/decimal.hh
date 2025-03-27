@@ -65,7 +65,11 @@
   #endif
   #define ALWAYS_INLINE __forceinline
 #else
-  #define IMPORTEXPORT
+  #if defined(__OS2__) && defined(BUILD_LIBMPDECXX)
+    #define IMPORTEXPORT __declspec(dllexport)
+  #else
+    #define IMPORTEXPORT
+  #endif
   #define ALWAYS_INLINE inline
 #endif
 
@@ -218,7 +222,7 @@ class ValueError : public DecimalException {
 class Context;
 
 IMPORTEXPORT extern Context context_template;
-#if defined(__OpenBSD__) || defined(__sun) || defined(_MSC_VER) && defined(_DLL)
+#if defined(__OS2__) || defined(__OpenBSD__) || defined(__sun) || defined(_MSC_VER) && defined(_DLL)
 IMPORTEXPORT Context& getcontext();
 static thread_local Context& context{getcontext()};
 #else

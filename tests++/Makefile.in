@@ -7,6 +7,7 @@ SRCDIR = ../libmpdec
 
 ENABLE_STATIC = @ENABLE_STATIC@
 ENABLE_SHARED = @ENABLE_SHARED@
+ENABLE_OS2 = @ENABLE_OS2@
 
 LIBSTATIC = @LIBSTATIC@
 LIBSHARED = @LIBSHARED@
@@ -28,6 +29,9 @@ FILTER_FOR_STATIC = @FILTER_FOR_STATIC@
 CONFIGURE_CXXFLAGS = @CONFIGURE_CXXFLAGS@
 MPD_CXXFLAGS_SHARED = $(strip $(filter-out $(CXXFLAGS),$(CONFIGURE_CXXFLAGS)) $(CXXFLAGS))
 MPD_CXXFLAGS = $(strip $(filter-out $(FILTER_FOR_STATIC),$(MPD_CXXFLAGS_SHARED)))
+
+INITIAL_LDXXFLAGS = @INITIAL_LDXXFLAGS@
+MPD_LDXXFLAGS = $(strip $(filter-out $(LDXXFLAGS),$(INITIAL_LDXXFLAGS)) $(LDXXFLAGS))
 
 LINK_LIBSTATIC = $(strip $(LINK_STATIC) $(SRCDIR_CXX)/$(LIBSTATIC_CXX) $(SRCDIR)/$(LIBSTATIC) $(LINK_DYNAMIC))
 
@@ -63,7 +67,11 @@ Makefile $(RUNTEST_SOURCES) $(RUNTEST_HEADERS) $(TEST_LIBS)
 
 runtest_shared:\
 Makefile $(RUNTEST_SOURCES) $(RUNTEST_HEADERS) $(TEST_SHLIBS)
-	$(MPD_CXX) -I.. -I$(SRCDIR) -I$(SRCDIR_CXX) $(MPD_CXXFLAGS_SHARED) -o runtest_shared runtest.cc test.cc -L$(SRCDIR) -L$(SRCDIR_CXX) -lmpdec++ -lmpdec -lm
+	$(MPD_CXX) -I.. -I$(SRCDIR) -I$(SRCDIR_CXX) $(MPD_LDXXFLAGS) $(MPD_CXXFLAGS_SHARED) -o runtest_shared runtest.cc test.cc -L$(SRCDIR) -L$(SRCDIR_CXX) -lmpdec++ -lmpdec -lm
+ifeq ($(ENABLE_OS2), yes)
+	rm -f runtest_shared
+	ln -s runtest_shared.exe runtest_shared
+endif
 
 
 # API test:
@@ -76,7 +84,11 @@ Makefile $(APITEST_SOURCES) $(APITEST_HEADERS) $(TEST_LIBS)
 
 apitest_shared:\
 Makefile $(APITEST_SOURCES) $(APITEST_HEADERS) $(TEST_SHLIBS)
-	$(MPD_CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(MPD_CXXFLAGS_SHARED) -o apitest_shared apitest.cc test.cc -L$(SRCDIR) -L$(SRCDIR_CXX) -lmpdec++ -lmpdec -lm
+	$(MPD_CXX) -I$(SRCDIR) -I$(SRCDIR_CXX) $(MPD_LDXXFLAGS) $(MPD_CXXFLAGS_SHARED) -o apitest_shared apitest.cc test.cc -L$(SRCDIR) -L$(SRCDIR_CXX) -lmpdec++ -lmpdec -lm
+ifeq ($(ENABLE_OS2), yes)
+	rm -f apitest_shared
+	ln -s apitest_shared.exe apitest_shared
+endif
 
 
 FORCE:
@@ -84,6 +96,9 @@ FORCE:
 clean: FORCE
 	rm -f *.o *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
 	rm -f runtest runtest_shared apitest apitest_shared
+ifeq ($(ENABLE_OS2), yes)
+	rm -f runtest_shared.exe apitest_shared.exe 
+endif
 
 distclean: FORCE
 	$(MAKE) clean

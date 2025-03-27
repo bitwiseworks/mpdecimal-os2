@@ -333,6 +333,8 @@ AC_CANONICAL_HOST
 
 # MinGW support:
 ENABLE_MINGW="no"
+# OS/2 support:
+ENABLE_OS2="no"
 
 # Set library names and linker flags:
 FPIC="-fPIC"
@@ -375,6 +377,15 @@ case $host in
     CONFIGURE_LDFLAGS="-shared -Wl,--out-implib,$LIBIMPORT"
     ENABLE_MINGW="yes"
     ;;
+  *os2*)
+    FPIC=
+    LIBNAME=
+    LIBIMPORT="libmpdec_dll.a"
+    LIBSONAME=
+    LIBSHARED="mpdec4.dll"
+    CONFIGURE_LDFLAGS="-Zdll"
+    ENABLE_OS2="yes"
+    ;;
   *)
     LIBNAME="libmpdec.so"
     LIBSONAME="libmpdec.so.4"
@@ -412,6 +423,13 @@ case $host in
     LIBSHARED_CXX="msys-mpdec++-4.dll"
     CONFIGURE_LDXXFLAGS="-shared -Wl,--out-implib,$LIBIMPORT_CXX"
     ;;
+  *os2*)
+    LIBNAME_CXX=
+    LIBIMPORT_CXX="libmpdec++_dll.a"
+    LIBSONAME_CXX=
+    LIBSHARED_CXX="mpdec++4.dll"
+    CONFIGURE_LDXXFLAGS="-Zdll"
+    ;;
   *)
     LIBNAME_CXX="libmpdec++.so"
     LIBSONAME_CXX="libmpdec++.so.4"
@@ -435,6 +453,17 @@ AC_SUBST(LIBSONAME_CXX)
 AC_SUBST(LIBSHARED_CXX)
 AC_SUBST(LIBIMPORT_CXX)
 AC_SUBST(ENABLE_MINGW)
+AC_SUBST(ENABLE_OS2)
+
+_v1=$(echo $PACKAGE_VERSION | cut -d '.' -f 1)
+_v2=$(echo $PACKAGE_VERSION | cut -d '.' -f 2)
+_v3=$(echo $PACKAGE_VERSION | cut -d '.' -f 3)
+VERSION_MAJOR=$_v1
+VERSION_MINOR=$_v2
+VERSION_PATCH=$_v3
+AC_SUBST(VERSION_MAJOR)
+AC_SUBST(VERSION_MINOR)
+AC_SUBST(VERSION_PATCH)
 
 # ==============================================================================
 #                                  User options
@@ -1079,6 +1108,8 @@ AC_SUBST(CONFIGURE_CFLAGS)
 AC_SUBST(CONFIGURE_LDFLAGS)
 AC_SUBST(CONFIGURE_CXXFLAGS)
 AC_SUBST(CONFIGURE_LDXXFLAGS)
+AC_SUBST(INITIAL_LDFLAGS)
+AC_SUBST(INITIAL_LDXXFLAGS)
 
 # ==============================================================================
 #                                  Write output

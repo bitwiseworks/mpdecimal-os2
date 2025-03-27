@@ -6,6 +6,7 @@
 SRCDIR = ../libmpdec
 ENABLE_STATIC = @ENABLE_STATIC@
 ENABLE_SHARED = @ENABLE_SHARED@
+ENABLE_OS2 = @ENABLE_OS2@
 
 LIBSTATIC = @LIBSTATIC@
 LIBSHARED = @LIBSHARED@
@@ -21,6 +22,9 @@ FILTER_FOR_STATIC = @FILTER_FOR_STATIC@
 CONFIGURE_CFLAGS = @CONFIGURE_CFLAGS@
 MPD_CFLAGS_SHARED = $(strip $(filter-out $(CFLAGS),$(CONFIGURE_CFLAGS)) $(CFLAGS) $(MPD_GNU99))
 MPD_CFLAGS = $(strip $(filter-out $(FILTER_FOR_STATIC),$(MPD_CFLAGS_SHARED)))
+
+INITIAL_LDFLAGS = @INITIAL_LDFLAGS@
+MPD_LDFLAGS = $(strip $(filter-out $(LDFLAGS),$(INITIAL_LDFLAGS)) $(LDFLAGS))
 
 LINK_LIBSTATIC = $(strip $(LINK_STATIC) $(SRCDIR)/$(LIBSTATIC) $(LINK_DYNAMIC))
 
@@ -45,7 +49,11 @@ test.h vctest.h
 runtest_shared:\
 Makefile runtest.c test.c $(SRCDIR)/$(LIBSHARED) $(SRCDIR)/mpdecimal.h \
 test.h vctest.h
-	$(CC) -I$(SRCDIR) $(MPD_CFLAGS_SHARED) -o runtest_shared runtest.c test.c -L$(SRCDIR) -lmpdec -lm
+	$(CC) -I$(SRCDIR) $(MPD_CFLAGS_SHARED) $(MPD_LDFLAGS) -o runtest_shared runtest.c test.c $(MPD_LDFLAGS) -L$(SRCDIR) -lmpdec -lm
+ifeq ($(ENABLE_OS2), yes)
+	rm -f runtest_shared
+	ln -s runtest_shared.exe runtest_shared
+endif
 
 
 FORCE:
@@ -53,6 +61,9 @@ FORCE:
 clean: FORCE
 	rm -f *.o *.gch *.gcda *.gcno *.gcov *.dyn *.dpi *.lock
 	rm -f runtest runtest_shared
+ifeq ($(ENABLE_OS2), yes)
+	rm -f runtest_shared.exe
+endif
 
 distclean: FORCE
 	$(MAKE) clean

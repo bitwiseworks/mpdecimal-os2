@@ -45,6 +45,12 @@ if [ -f ./runtest_shared ]; then
     printf "# ========================================================================\n\n"
 
     PORTABLE_PWD=`pwd`
+case $SYSTEM in
+    *OS/2*)
+    BEGINLIBPATH="$PORTABLE_PWD/../libmpdec;$PORTABLE_PWD/../libmpdec++"
+    export BEGINLIBPATH
+    ;;
+    *)
     LD_LIBRARY_PATH="$PORTABLE_PWD/../libmpdec:$PORTABLE_PWD/../libmpdec++:$LD_LIBRARY_PATH"
     DYLD_LIBRARY_PATH="$PORTABLE_PWD/../libmpdec:$PORTABLE_PWD/../libmpdec++:$DYLD_LIBRARY_PATH"
     LD_64_LIBRARY_PATH="$PORTABLE_PWD/../libmpdec:$PORTABLE_PWD/../libmpdec++:$LD_64_LIBRARY_PATH"
@@ -58,6 +64,8 @@ if [ -f ./runtest_shared ]; then
     export LD_32_LIBRARY_PATH
     export LD_LIBRARY_PATH_64
     export LD_LIBRARY_PATH_32
+    ;;
+esac
 
     if [ x"$1" != x"--local" ]; then
         printf "Running official tests ...\n\n"

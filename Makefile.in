@@ -12,6 +12,7 @@ ENABLE_SHARED = @ENABLE_SHARED@
 ENABLE_PC = @ENABLE_PC@
 ENABLE_DOC = @ENABLE_DOC@
 ENABLE_MINGW = @ENABLE_MINGW@
+ENABLE_OS2 = @ENABLE_OS2@
 PROFILE =
 
 LIBSTATIC = @LIBSTATIC@
@@ -100,9 +101,14 @@ ifeq ($(ENABLE_MINGW), yes)
 	$(INSTALL) -m 644 libmpdec/$(LIBIMPORT) $(DESTDIR)$(libdir)
 	$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(bindir)
 else
+ifeq ($(ENABLE_OS2), yes)
+	$(INSTALL) -m 644 libmpdec/$(LIBIMPORT) $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)
+else
 ifeq ($(LIBSHARED_USE_AR), no)
 	$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)
 	cd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) $(LIBNAME)
+endif
 endif
 endif
 endif
@@ -117,9 +123,14 @@ ifeq ($(ENABLE_MINGW), yes)
 	$(INSTALL) -m 644 libmpdec++/$(LIBIMPORT_CXX) $(DESTDIR)$(libdir)
 	$(INSTALL) -m 755 libmpdec++/$(LIBSHARED_CXX) $(DESTDIR)$(bindir)
 else
+ifeq ($(ENABLE_OS2), yes)
+	$(INSTALL) -m 644 libmpdec++/$(LIBIMPORT_CXX) $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 libmpdec++/$(LIBSHARED_CXX) $(DESTDIR)$(libdir)
+else
 ifeq ($(LIBSHARED_USE_AR), no)
 	$(INSTALL) -m 755 libmpdec++/$(LIBSHARED_CXX) $(DESTDIR)$(libdir)
 	cd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED_CXX) $(LIBSONAME_CXX) && ln -sf $(LIBSHARED_CXX) $(LIBNAME_CXX)
+endif
 endif
 endif
 endif

@@ -6,6 +6,7 @@
 ENABLE_STATIC = @ENABLE_STATIC@
 ENABLE_SHARED = @ENABLE_SHARED@
 ENABLE_MINGW = @ENABLE_MINGW@
+ENABLE_OS2 = @ENABLE_OS2@
 
 FPIC = @FPIC@
 LIBSTATIC = @LIBSTATIC@
@@ -16,6 +17,12 @@ LIBIMPORT = @LIBIMPORT@
 LIBSHARED_USE_AR = @LIBSHARED_USE_AR@
 LINK_STATIC = @LINK_STATIC@
 LINK_DYNAMIC = @LINK_DYNAMIC@
+
+VERSION = @PACKAGE_VERSION@
+VERSION_PATCH = @VERSION_PATCH@
+VENDOR ?=community
+BUILD_INFO=\#\#1\#\# $(shell date +'%d %b %Y %H:%M:%S')     $(shell uname -n)
+BUILDLEVEL_INFO=@\#$(VENDOR):$(VERSION)\#@$(BUILD_INFO)::::$(VERSION_PATCH)::
 
 EXPORTSYMS = @EXPORTSYMS@
 OBJECT_SUFFIX = @OBJECT_SUFFIX@
@@ -80,6 +87,11 @@ SHARED_OBJS := .objs/basearith.o .objs/context.o .objs/constants.o \
                .objs/mpalloc.o .objs/numbertheory.o .objs/sixstep.o \
                .objs/transpose.o
 
+ifeq ($(ENABLE_OS2), yes)
+LIBSHARED_DEF = $(subst .dll,.def,$(LIBSHARED))
+LIBSHARED_LIB = $(subst .dll,,$(LIBSHARED))
+SHARED_OBJS += $(LIBSHARED_DEF)
+endif
 
 ifeq ($(LIBSHARED_USE_AR), yes)
 AR_STATIC_OBJS := $(OBJS:.o=$(OBJECT_SUFFIX))
@@ -101,9 +113,22 @@ $(LIBSTATIC): Makefile $(OBJS)
 
 $(LIBSHARED): Makefile $(SHARED_OBJS)
 	$(LD) $(MPD_LDFLAGS) -o $(LIBSHARED) $(SHARED_OBJS) -lm
+ifeq ($(ENABLE_OS2), yes)
+	emximp -o $(LIBIMPORT) $(LIBSHARED)
+else
 ifeq ($(ENABLE_MINGW), no)
 	ln -sf $(LIBSHARED) $(LIBNAME)
 	ln -sf $(LIBSHARED) $(LIBSONAME)
+endif
+endif
+ifeq ($(ENABLE_OS2), yes)
+$(LIBSHARED_DEF):
+	echo Creating $@...
+	echo "LIBRARY $(LIBSHARED_LIB) INITINSTANCE TERMINSTANCE" > $@
+	echo "DESCRIPTION \"$(BUILDLEVEL_INFO)@@$(LIBSHARED_LIB)\"" >> $@
+	echo "DATA MULTIPLE" >> $@
+	echo "EXPORTS" >> $@
+	sed -e "s|mpd_|_mpd_|" -e "s|MPD_|_MPD_|" -e "s|\*\*\* |;|" .objs/$(EXPORTSYMS) >> $@
 endif
 endif
 
